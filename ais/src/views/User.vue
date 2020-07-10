@@ -33,7 +33,6 @@ import Events from './Events'
 
         data() {
             return {
-                user: {}
             }
         },
 

@@ -15,7 +15,8 @@
                 <tr v-for="(item, id) in guestsGetter" :key="id">
                 <td>{{ id+1 }}</td>
                 <td>{{ item.last_name }} {{ item.name }} {{ item.second_name }}</td>
-                <td>{{ item.isLoggedIn }}</td>
+                <td v-if="item.color" style="color: green;">{{ item.isLoggedIn }}</td>
+                <td v-else style="color: red;">{{ item.isLoggedIn }}</td>
                 </tr>
             </tbody>
             </template>

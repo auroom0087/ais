@@ -12,7 +12,6 @@ export default new Vuex.Store({
     mutations: {
         add_user(state, data) {
             state.user = data
-            state.user.isLoggedIn = true
         },
 
         getGuests(state, data) {
@@ -29,7 +28,8 @@ export default new Vuex.Store({
 
                         if (resp.data) {
                             console.log("Success!", resp.data)
-
+                            resp.data.isLoggedIn = true
+                                // this.updateUser(id)
                             localStorage.setItem('user', JSON.stringify(resp.data))
                             commit('add_user', resp.data)
                             resolve(resp)
@@ -56,12 +56,32 @@ export default new Vuex.Store({
                         reject(err)
                     })
             })
+        },
+
+        async updateUser(id) {
+            axios({ url: 'http://127.0.0.1:3000/api/setLog/' + id, method: 'GET' })
+                .then(resp => {
+                    if (resp.data) {
+                        console.log("Success!", resp.data)
+                    }
+                })
         }
     },
 
     getters: {
         getUser: state => state.user,
-        guestsGetter: state => state.guests
+        guestsGetter: state => {
+            state.guests.forEach(elem => {
+                if (elem.isLoggedIn == true) {
+                    elem.isLoggedIn = "Авторизован"
+                    elem.color = true
+                } else {
+                    elem.isLoggedIn = "Не авторизован"
+                    elem.color = false
+                }
+            })
+            return state.guests
+        }
     },
 
     modules: {}
