@@ -1,16 +1,13 @@
 <template>
     <v-container>
         <h2>Мероприятия</h2>
-        <v-divider></v-divider>
-
-        <v-card>
-            <v-card-title>Таблица</v-card-title>
+        <v-card v-for="(d, id) in dateFilt" :key="id" style="margin-bottom: 15px; margin-top: 15px;">
+            <v-card-title>{{ d.date }}</v-card-title>
             <v-card-text><v-simple-table>
                 <template v-slot:default>
                 <thead>
                     <tr>
                     <th class="text-left">Номер</th>
-                    <th class="text-left">Дата</th>
                     <th class="text-left">Время начала</th>
                     <th class="text-left">Время окончания</th>
                     <th class="text-left">Название</th>
@@ -18,9 +15,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(item,id) in events" :key="item.id" v-bind:class="{isNow: item.isActive}">
+                    <tr v-for="(item,id) in d.events" :key="item.id" v-bind:class="{isNow: item.isActive}">
                         <td>{{ id + 1}}</td>
-                        <td>{{ item.timeStart.toLocaleDateString()}}</td>
                         <td>{{ item.timeStart.toLocaleTimeString() }}</td>
                         <td>{{ item.timeStop.toLocaleTimeString() }}</td>
                         <td><router-link :to="/event/ + id">{{ item.title }}</router-link></td>
@@ -49,6 +45,14 @@
                         isActive: false
                     },
                     {
+                        id: Date.now(),
+                        timeStart: new Date('2020-07-13T10:00:00'),
+                        timeStop: new Date('2020-07-23T12:00:00'),
+                        title: 'Переписываем АИС 4',
+                        place: '3Д',
+                        isActive: false
+                    },
+                    {
                         id: Date.now() + 1,
                         timeStart: new Date('2020-07-10T05:00:00'),
                         timeStop: new Date('2020-07-10T08:00:00'),
@@ -57,10 +61,18 @@
                         isActive: false
                     },
                     {
+                        id: Date.now() + 3,
+                        timeStart: new Date('2020-07-10T07:00:00'),
+                        timeStop: new Date('2020-07-10T12:00:00'),
+                        title: 'Переписываем АИС 3',
+                        place: '4 корпус, 408 аудитория',
+                        isActive: false
+                    },
+                    {
                         id: Date.now() + 2,
                         timeStart: new Date('2020-07-10T07:00:00'),
-                        timeStop: new Date('2020-07-15T12:00:00'),
-                        title: 'Переписываем АИС 2',
+                        timeStop: new Date('2020-07-10T12:00:00'),
+                        title: 'Переписываем АИС 3',
                         place: '4 корпус, 408 аудитория',
                         isActive: false
                     }
@@ -75,63 +87,58 @@
 
         async mounted() {
 
-            for (let i = 0; i < this.events.length; i++) {
-                
-                this.date.push({
-                    date: this.events[i].timeStart.toLocaleDateString(),
+            this.sortEvents()
+
+            this.events.forEach(elem => {
+                this.date.push(JSON.stringify({
+                    date: elem.timeStart.toLocaleDateString(),
                     events: []
-                })
+                }))
+            })
 
-                for (let j = 0; j < this.date.length; j++) {
-                    if(this.date[j].date != this.events[i].timeStart.toLocaleDateString()) {
-                        this.date.push({
-                            date: this.events[i].timeStart.toLocaleDateString(),
-                            events: []
-                        })
-                    }
-                }
-            }
-            
-            console.log(this.date)
+            this.date = Array.from(new Set(this.date))
 
-            // console.log(this.groupByDate(this.events))
-            this.events = this.events.sort(function (a, b) {
-                if (a.timeStart > b.timeStart) {
-                    return 1;
-                }
-                if (a.timeStart < b.timeStart) {
-                    return -1;
-                }
-                // a должно быть равным b
-                return 0;
-            });
+            this.date.forEach(elem => {
+                this.dateFilt.push(JSON.parse(elem))
+            })
 
-            for (let i = 0; i < this.events.length; i++) {
-                if (Number(this.events[i].timeStart) < Date.now() && Number(this.events[i].timeStop) > Date.now()) {
-                    this.events[i].isActive = true
-                }
-
-            }
+            this.addEvents()
+            this.getBlue()
         },
 
         methods: {
-            groupByDate(arr) {
-                //свертка массива во временный объект, с датами в качестве ключей
-                const temp = arr.reduce((acc, elem) => {
-                    // делим строку по пробелу и извлекаем 0й элемент '2018-03-05 12:00' -> '2018-03-05'
-                    const date = elem.date;
-                    //если ключа-даты еще нет в объекте, записываем туда пустой массив
-                    if(!acc[date]) {
-                    acc[date] = [];
+
+            sortEvents() {
+                this.events = this.events.sort(function (a, b) {
+                    if (a.timeStart > b.timeStart) {
+                        return 1;
                     }
-                    // ложим текущий элемент в соответствующий массив
-                    acc[date].push(elem);
-                    return acc;
-                }, {});
-                // извлекаем все ключи получившегося объекта в массив
-                // и преобразуем массив ключей в массив значений
-                return Object.getOwnPropertyNames(temp).map(k => temp[k]);
+                    if (a.timeStart < b.timeStart) {
+                        return -1;
+                    }
+                    // a должно быть равным b
+                    return 0;
+                });
+            },
+
+            getBlue() {
+                for (let i = 0; i < this.events.length; i++) {
+                    if (Number(this.events[i].timeStart) < Date.now() && Number(this.events[i].timeStop) > Date.now()) {
+                        this.events[i].isActive = true
+                    }
                 }
+            },
+
+            addEvents() {
+                
+                for (let i = 0; i < this.events.length; i++) {
+                    for(let j = 0; j < this.dateFilt.length; j++) {
+                        if (this.dateFilt[j].date == this.events[i].timeStart.toLocaleDateString()) {
+                            this.dateFilt[j].events.push(this.events[i])
+                        }
+                    }
+                }
+            }
         }
     }
 </script>

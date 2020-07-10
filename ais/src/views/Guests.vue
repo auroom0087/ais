@@ -12,7 +12,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="(item, id) in users" :key="id">
+                <tr v-for="(item, id) in guestsGetter" :key="id">
                 <td>{{ id+1 }}</td>
                 <td>{{ item.last_name }} {{ item.name }} {{ item.second_name }}</td>
                 <td>{{ item.isLoggedIn }}</td>
@@ -24,18 +24,25 @@
 </template>
 
 <script>
+import {mapActions, mapGetters} from 'vuex'
     export default {
         data() {
             return {
-                users: [
-                    {
-                        last_name: 'Кушнарев',
-                        name: 'Владислав',
-                        second_name: 'Сергеевич',
-                        isLoggedIn: false
-                    }
-                ]
             }
-        }
+        },
+
+
+        mounted() {
+            this.getMyGuests()
+        },
+
+        methods: {
+            ...mapActions(['getGuests']),
+            async getMyGuests() {
+                await this.getGuests()
+            }
+        },
+
+        computed: mapGetters(['guestsGetter'])
     }
 </script>
