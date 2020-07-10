@@ -1,28 +1,44 @@
 'use strict'
 
+const mysql = require("mysql2");
+const crypto = require('crypto');
+
+const connection = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    database: "ais",
+    password: ""
+});
+
 class Auth {
 
-	constructor() {
-	}
+    constructor() {}
 
-	async index() {
-		return user_model.show();
-	}
+    async index() {}
 
-	async create (credentials) {
-		const user = {
-            last_name: '',
-            name: credentials.name,
-            second_name: '',
-            organization: '',
-            status: '',
-            isLoggedIn: false,
-			email: credentials.email,
-			password: credentials.password
-		}
-		result = await user_model.store(user)
-		return result
-	}
+
+    async login(id) {
+
+        connection.query("select * from users where user_id=?", [id],
+            function(err, rows) {
+                var data = rows[0]
+                if (data) {
+                    data.token = crypto.createHmac('sha256', String(new Date())).digest('hex')
+                    console.log(JSON.stringify(data))
+                    return data
+                } else {
+                    return "Error!"
+                }
+            });
+        connection.end();
+    }
+
+    async getToken(user) {
+        const secret = String(new Date());
+        const hash = crypto.createHmac('sha256', secret)
+            .digest('hex');
+        return hash
+    }
 }
 
-module.exports = UserController
+module.exports = Auth
