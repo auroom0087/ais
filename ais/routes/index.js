@@ -3,7 +3,9 @@ var router = express.Router();
 
 const mysql = require("mysql2");
 const crypto = require('crypto');
+const multer = require("multer");
 
+const upload = multer({ dest: "uploads" });
 const pool = mysql.createConnection({
     host: "localhost",
     user: "root",
@@ -25,6 +27,12 @@ router.get('/api/auth/:id', async function(req, res) {
     pool.query("select * from users where user_id=?", [req.params.id],
         function(err, data) {
             if (data) {
+                pool.query("update users set isLoggedIn = true where user_id=?", [req.params.id],
+                    function(err, data) {
+                        if (data) {
+                            console.log(data)
+                        }
+                    });
                 data.token = crypto.createHmac('sha256', String(new Date())).digest('hex')
                 res.send(data[0])
                 return data
@@ -47,5 +55,12 @@ router.get('/api/guests', async function(req, res) {
             }
         });
 })
+
+router.post('/api/upload', upload.single('file'), async function(req, res) {
+
+    res.json({ file: req.file })
+
+});
+
 
 module.exports = router;
