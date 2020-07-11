@@ -1,27 +1,21 @@
 <template>
-    <v-container>
-            <v-row>
-                <v-col lg="4">
-                <v-card>
-            <v-card-title>Регистрация</v-card-title>
-            <v-card-text>
-                <p>Выберите файл с участниками</p>
-                <form enctype="multipart/form-data" @submit.prevent>
-                    <input 
-                        type="file" 
-                        ref="file"
-                        accept=".xlsx" 
-                        @change="onSelect" 
-                        id="file-input">
-                    <button type="submit">Загрузить</button>
-                </form>
-            </v-card-text>
-                    
-                    </v-card>
-                </v-col>
-            </v-row>
-        
-    </v-container>
+    <v-card>
+        <v-card-title>Регистрация</v-card-title>
+        <v-card-text>
+            <p>Выберите файл с участниками</p>
+            <form enctype="multipart/form-data" @submit.prevent>
+                <v-file-input
+                    label="Файл с участниками"
+                    filled
+                    prepend-icon="mdi-account-multiple-outline"
+                    id="file-input"
+                    accept=".xlsx" 
+                    @change="onSelect" 
+                ></v-file-input>
+                <v-btn color="purple darken-4" tile class="button">Загрузить</v-btn>
+            </form>
+        </v-card-text>
+    </v-card>
 </template>
 
 <script>
@@ -77,3 +71,7 @@ import axios from 'axios'
             }
         }
 </script>
+
+<style scoped>
+   .button {color: #fff;}
+</style>
