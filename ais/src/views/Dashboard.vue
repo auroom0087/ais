@@ -14,6 +14,7 @@
                 ></v-file-input>
                 <v-btn color="purple darken-4" tile class="button">Загрузить</v-btn>
             </form>
+            <v-btn color="purple darken-4 mt-3" tile class="button">Скачать файл</v-btn>
         </v-card-text>
     </v-card>
 </template>
